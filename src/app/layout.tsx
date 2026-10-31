@@ -1,16 +1,15 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Oswald } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+import Navbar from "@/components/Navbar";
+
+const oswald = Oswald({
   subsets: ["latin"],
+  variable: "--font-oswald",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -19,11 +18,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang='en' className={`${oswald.variable} ${oswald.className} dark h-full antialiased`}>
+      <body className='min-h-full flex flex-col'>
+        <Navbar />
+        {children}
+      </body>
     </html>
   );
 }
