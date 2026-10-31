@@ -95,7 +95,7 @@ export default function Banner() {
                 </p>
 
                 <Link
-                  href="/books"
+                  href="/all-books"
                   className="group mt-8 inline-flex items-center gap-2 rounded-xl bg-[#f7bd1f] px-6 py-3.5 text-[15px] font-bold text-[#141c2d] shadow-[0_0_30px_rgba(247,189,31,0.3)] transition-colors hover:bg-[#ffcb38] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f7bd1f] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1220] sm:text-base"
                 >
                   Browse Books
