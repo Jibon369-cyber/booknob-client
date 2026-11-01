@@ -140,27 +140,32 @@ export default function Navbar() {
             {isDark ? <Sun size={18} /> : <Moon size={18} />}
           </button>
 
-          {/* User Avatar */}
-          <Avatar key={getAvatarSrc(user?.image) ?? user?.email ?? "guest"}>
-            <AvatarImage referrerPolicy="no-referrer" src={getAvatarSrc(user?.image)} alt={user?.name ?? "User"} />
-            <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
-          </Avatar>
+          {user ? (
+            <Avatar key={getAvatarSrc(user?.image) ?? user?.email ?? "guest"}>
+              <AvatarImage
+                referrerPolicy='no-referrer'
+                src={getAvatarSrc(user?.image)}
+                alt={user?.name ?? "User"}
+              />
+              <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
+            </Avatar>
+          ) : (
+            <>
+              <Link
+                href='/login'
+                className='hidden items-center gap-2 rounded-xl px-3 py-2.5 text-[13px] font-semibold text-slate-300 transition-all duration-300 hover:bg-white/[0.07] hover:text-white md:flex'>
+                <LogIn size={17} />
+                Login
+              </Link>
 
-          {/* Login */}
-          <Link
-            href='/login'
-            className='hidden items-center gap-2 rounded-xl px-3 py-2.5 text-[13px] font-semibold text-slate-300 transition-all duration-300 hover:bg-white/[0.07] hover:text-white md:flex'>
-            <LogIn size={17} />
-            Login
-          </Link>
-
-          {/* Register */}
-          <Link
-            href='/register'
-            className='hidden items-center gap-2 rounded-xl bg-[#5b4cf5] px-4 py-2.5 text-[13px] font-bold text-white shadow-[0_4px_15px_rgba(91,76,245,0.25)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#6a5df7] hover:shadow-[0_6px_20px_rgba(91,76,245,0.4)] sm:flex'>
-            <UserPlus size={17} />
-            Register
-          </Link>
+              <Link
+                href='/register'
+                className='hidden items-center gap-2 rounded-xl bg-[#5b4cf5] px-4 py-2.5 text-[13px] font-bold text-white shadow-[0_4px_15px_rgba(91,76,245,0.25)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#6a5df7] hover:shadow-[0_6px_20px_rgba(91,76,245,0.4)] sm:flex'>
+                <UserPlus size={17} />
+                Register
+              </Link>
+            </>
+          )}
 
           {/* Mobile Menu Button */}
           <button
@@ -210,19 +215,23 @@ export default function Navbar() {
 
           {/* Mobile Authentication */}
           <div className='mt-4 grid grid-cols-2 gap-3 border-t border-white/[0.07] pt-4'>
-            <Link
-              href='/login'
-              className='flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-slate-200 transition-colors hover:bg-white/[0.07]'>
-              <LogIn size={17} />
-              Login
-            </Link>
+            {!user && (
+              <>
+                <Link
+                  href='/login'
+                  className='flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-slate-200 transition-colors hover:bg-white/[0.07]'>
+                  <LogIn size={17} />
+                  Login
+                </Link>
 
-            <Link
-              href='/register'
-              className='flex items-center justify-center gap-2 rounded-xl bg-[#5b4cf5] px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-[#6a5df7]'>
-              <UserPlus size={17} />
-              Register
-            </Link>
+                <Link
+                  href='/register'
+                  className='flex items-center justify-center gap-2 rounded-xl bg-[#5b4cf5] px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-[#6a5df7]'>
+                  <UserPlus size={17} />
+                  Register
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
