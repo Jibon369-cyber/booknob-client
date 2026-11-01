@@ -17,9 +17,19 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+
 import { cn } from "cn";
 import { authClient } from "@/lib/auth-client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "./ui/button";
 
 type NavItem = {
   label: string;
@@ -74,6 +84,10 @@ export default function Navbar() {
     setMobileOpen(false);
   }, [pathname]);
 
+  const handleLogout = () => {
+    authClient.signOut();
+  }
+
   return (
     <header className='sticky top-0 z-50 w-full border-b border-white/[0.07] bg-[#151e2e]/95 shadow-[0_4px_25px_rgba(0,0,0,0.12)] backdrop-blur-xl'>
       <div className='mx-auto flex h-[82px] max-w-7xl items-center justify-between gap-4 px-5 sm:px-6 xl:px-8'>
@@ -106,27 +120,33 @@ export default function Navbar() {
         <nav
           aria-label='Main navigation'
           className='hidden items-center gap-1 rounded-2xl border border-white/[0.06] bg-white/[0.035] p-1.5 lg:flex'>
-          {navItems.map((item) => {
-            const active = isActivePath(pathname, item.href);
-            const Icon = item.icon;
+          {navItems
+            .filter(
+              (item) => user || item.href === "/" || item.href === "/all-books",
+            )
+            .map((item) => {
+              const active = isActivePath(pathname, item.href);
+              const Icon = item.icon;
 
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-current={active ? "page" : undefined}
-                className={cn(
-                  "relative flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-[13px] font-semibold transition-all duration-300",
-                  active
-                    ? "bg-[#5b4cf5] text-white shadow-[0_4px_15px_rgba(91,76,245,0.3)]"
-                    : "text-slate-300 hover:bg-white/[0.07] hover:text-white",
-                )}>
-                {Icon && <Icon size={16} strokeWidth={2} aria-hidden='true' />}
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={active ? "page" : undefined}
+                  className={cn(
+                    "relative flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-[13px] font-semibold transition-all duration-300",
+                    active
+                      ? "bg-[#5b4cf5] text-white shadow-[0_4px_15px_rgba(91,76,245,0.3)]"
+                      : "text-slate-300 hover:bg-white/[0.07] hover:text-white",
+                  )}>
+                  {Icon && (
+                    <Icon size={16} strokeWidth={2} aria-hidden='true' />
+                  )}
 
-                {item.label}
-              </Link>
-            );
-          })}
+                  {item.label}
+                </Link>
+              );
+            })}
         </nav>
 
         {/* Right Actions */}
@@ -141,14 +161,29 @@ export default function Navbar() {
           </button>
 
           {user ? (
-            <Avatar key={getAvatarSrc(user?.image) ?? user?.email ?? "guest"}>
-              <AvatarImage
-                referrerPolicy='no-referrer'
-                src={getAvatarSrc(user?.image)}
-                alt={user?.name ?? "User"}
-              />
-              <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
-            </Avatar>
+            <Popover>
+              <PopoverTrigger
+                render={
+                  <Avatar
+                    key={getAvatarSrc(user?.image) ?? user?.email ?? "guest"}>
+                    <AvatarImage
+                      referrerPolicy='no-referrer'
+                      src={getAvatarSrc(user?.image)}
+                      alt={user?.name ?? "User"}
+                    />
+                    <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                }></PopoverTrigger>
+              <PopoverContent>
+                <PopoverHeader>
+                  <PopoverTitle>{user?.name}</PopoverTitle>
+                  <PopoverDescription>{user?.email}</PopoverDescription>
+                </PopoverHeader>
+                <Button onClick={handleLogout} className='bg-[#5b4cf5] hover:bg-[#6a5df7] text-white'>
+                  Log Out
+                </Button>
+              </PopoverContent>
+            </Popover>
           ) : (
             <>
               <Link
@@ -191,26 +226,31 @@ export default function Navbar() {
         )}>
         <div className='mx-auto max-w-7xl px-5 pb-5 pt-3 sm:px-6'>
           <nav aria-label='Mobile navigation' className='flex flex-col gap-1.5'>
-            {navItems.map((item) => {
-              const active = isActivePath(pathname, item.href);
-              const Icon = item.icon;
+            {navItems
+              .filter(
+                (item) =>
+                  user || item.href === "/" || item.href === "/all-books",
+              )
+              .map((item) => {
+                const active = isActivePath(pathname, item.href);
+                const Icon = item.icon;
 
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  aria-current={active ? "page" : undefined}
-                  className={cn(
-                    "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200",
-                    active
-                      ? "bg-[#5b4cf5] text-white shadow-md"
-                      : "text-slate-300 hover:bg-white/[0.07] hover:text-white",
-                  )}>
-                  {Icon && <Icon size={18} />}
-                  {item.label}
-                </Link>
-              );
-            })}
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    aria-current={active ? "page" : undefined}
+                    className={cn(
+                      "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200",
+                      active
+                        ? "bg-[#5b4cf5] text-white shadow-md"
+                        : "text-slate-300 hover:bg-white/[0.07] hover:text-white",
+                    )}>
+                    {Icon && <Icon size={18} />}
+                    {item.label}
+                  </Link>
+                );
+              })}
           </nav>
 
           {/* Mobile Authentication */}
