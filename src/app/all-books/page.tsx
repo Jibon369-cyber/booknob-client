@@ -91,20 +91,20 @@ export default async function AllBooksPage({
   const hasActiveFilter = query !== "" || selectedCategory !== "All";
 
   return (
-    <main className='min-h-screen bg-[#050714] px-4 py-10 text-slate-300 sm:px-6 lg:px-8'>
+    <main className='min-h-screen bg-white dark:bg-[#050714] px-4 py-10 text-slate-900 dark:text-slate-300 sm:px-6 lg:px-8'>
       <div className='mx-auto max-w-7xl space-y-8'>
         {/* Header & Search */}
-        <section className='flex flex-col items-start justify-between gap-6 rounded-2xl border border-slate-800/80 bg-[#0b1021] p-6 shadow-xl md:flex-row md:items-center md:p-8'>
+        <section className='flex flex-col items-start justify-between gap-6 rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#0b1021] p-6 shadow-xl md:flex-row md:items-center md:p-8'>
           <div className='space-y-2'>
-            <h1 className='text-2xl font-bold tracking-tight text-white'>
+            <h1 className='text-2xl font-bold tracking-tight text-slate-900 dark:text-white'>
               Library Catalog
             </h1>
 
-            <p className='text-xs text-slate-400'>
+            <p className='text-xs text-slate-500 dark:text-slate-400'>
               Explore and borrow books available in the BookNook ecosystem.
             </p>
 
-            <p className='text-xs font-medium text-indigo-400'>
+            <p className='text-xs font-medium text-indigo-600 dark:text-indigo-400'>
               {filteredBooks.length} Books Available in Catalog
             </p>
           </div>
@@ -117,7 +117,7 @@ export default async function AllBooksPage({
               <input type='hidden' name='category' value={selectedCategory} />
             )}
             <svg
-              className='absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500'
+              className='absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-slate-500'
               fill='none'
               viewBox='0 0 24 24'
               stroke='currentColor'
@@ -135,7 +135,7 @@ export default async function AllBooksPage({
               defaultValue={query}
               placeholder='Search by title or author...'
               aria-label='Search books'
-              className='w-full rounded-xl border border-slate-800 bg-[#050714] py-3 pl-10 pr-4 text-xs text-white placeholder-slate-500 outline-none transition-colors focus:border-indigo-500'
+              className='w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#050714] py-3 pl-10 pr-4 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 outline-none transition-colors focus:border-indigo-500'
             />
 
             {hasActiveFilter && (
@@ -150,9 +150,9 @@ export default async function AllBooksPage({
 
         {/* Category Filters */}
         <section className='space-y-3'>
-          <div className='flex items-center gap-2 text-sm font-semibold text-white'>
+          <div className='flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white'>
             <svg
-              className='h-4 w-4 text-indigo-400'
+              className='h-4 w-4 text-indigo-600 dark:text-indigo-400'
               fill='none'
               viewBox='0 0 24 24'
               stroke='currentColor'
@@ -177,7 +177,7 @@ export default async function AllBooksPage({
                   className={`shrink-0 rounded-xl px-4 py-2.5 text-xs font-semibold transition-all duration-300 ${
                     isActive
                       ? "bg-[#5b51d8] text-white shadow-md shadow-indigo-500/20"
-                      : "border border-slate-800 bg-[#0b1021] text-slate-400 hover:border-indigo-500/50 hover:text-white"
+                      : "border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0b1021] text-slate-600 dark:text-slate-400 hover:border-indigo-500/50 hover:text-slate-900 dark:hover:text-white"
                   }`}>
                   {category}
                 </Link>
@@ -188,15 +188,15 @@ export default async function AllBooksPage({
 
         {/* Error Message */}
         {error ? (
-          <div className='rounded-2xl border border-rose-900/50 bg-rose-950/20 p-8 text-center'>
-            <p className='font-semibold text-rose-400'>{error}</p>
+          <div className='rounded-2xl border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/20 p-8 text-center'>
+            <p className='font-semibold text-rose-600 dark:text-rose-400'>{error}</p>
           </div>
         ) : filteredBooks.length === 0 ? (
           /* Empty State */
-          <div className='rounded-2xl border border-slate-800 bg-[#0b1021] px-5 py-20 text-center'>
-            <h2 className='text-xl font-bold text-white'>No Books Found</h2>
+          <div className='rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0b1021] px-5 py-20 text-center'>
+            <h2 className='text-xl font-bold text-slate-900 dark:text-white'>No Books Found</h2>
 
-            <p className='mt-2 text-sm text-slate-400'>
+            <p className='mt-2 text-sm text-slate-500 dark:text-slate-400'>
               {hasActiveFilter
                 ? "Try adjusting your search or category filter."
                 : "There are currently no books available in the library."}
@@ -228,11 +228,11 @@ export default async function AllBooksPage({
               return (
                 <article
                   key={bookId}
-                  className='group flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-800/80 bg-[#0b1021] shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-indigo-500/50 hover:shadow-indigo-950/30'>
+                  className='group flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#0b1021] shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-indigo-500/50 hover:shadow-indigo-950/30'>
                   {/* Book Cover */}
-                  <div className='relative flex h-56 items-center justify-center overflow-hidden bg-slate-900/60 p-4'>
+                  <div className='relative flex h-56 items-center justify-center overflow-hidden bg-slate-100 dark:bg-slate-900/60 p-4'>
                     {/* Category */}
-                    <span className='absolute left-3 top-3 z-10 rounded-md border border-slate-700/60 bg-slate-900/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white backdrop-blur-md'>
+                    <span className='absolute left-3 top-3 z-10 rounded-md border border-slate-200 dark:border-slate-700/60 bg-white/90 dark:bg-slate-900/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-900 dark:text-white backdrop-blur-md'>
                       {book.category}
                     </span>
 
@@ -256,10 +256,10 @@ export default async function AllBooksPage({
                     <span
                       className={`absolute bottom-3 left-3 z-10 rounded-md border px-2.5 py-1 text-[10px] font-semibold backdrop-blur-md ${
                         available === undefined
-                          ? "border-slate-700 bg-slate-900/90 text-slate-300"
+                          ? "border-slate-300 dark:border-slate-700 bg-white/90 dark:bg-slate-900/90 text-slate-600 dark:text-slate-300"
                           : available > 0
-                            ? "border-emerald-800/60 bg-emerald-950/90 text-emerald-300"
-                            : "border-rose-800/60 bg-rose-950/90 text-rose-300"
+                            ? "border-emerald-300 dark:border-emerald-800/60 bg-emerald-50 dark:bg-emerald-950/90 text-emerald-700 dark:text-emerald-300"
+                            : "border-rose-300 dark:border-rose-800/60 bg-rose-50 dark:bg-rose-950/90 text-rose-700 dark:text-rose-300"
                       }`}>
                       {available === undefined
                         ? "Availability Unknown"
@@ -272,22 +272,22 @@ export default async function AllBooksPage({
                   {/* Book Information */}
                   <div className='flex flex-grow flex-col justify-between space-y-5 p-5'>
                     <div className='space-y-2'>
-                      <h2 className='line-clamp-1 text-base font-bold tracking-tight text-white transition-colors group-hover:text-indigo-400'>
+                      <h2 className='line-clamp-1 text-base font-bold tracking-tight text-slate-900 dark:text-white transition-colors group-hover:text-indigo-600 dark:group-hover:text-indigo-400'>
                         {book.title}
                       </h2>
 
-                      <p className='text-xs text-slate-400'>by {book.author}</p>
+                      <p className='text-xs text-slate-500 dark:text-slate-400'>by {book.author}</p>
                     </div>
 
                     {/* Card Footer */}
-                    <div className='flex items-center justify-between border-t border-slate-800/80 pt-4'>
+                    <div className='flex items-center justify-between border-t border-slate-200 dark:border-slate-800/80 pt-4'>
                       <span
                         className={`text-xs font-semibold ${
                           available === undefined
-                            ? "text-slate-400"
+                            ? "text-slate-500 dark:text-slate-400"
                             : available > 0
-                              ? "text-emerald-400"
-                              : "text-rose-400"
+                              ? "text-emerald-600 dark:text-emerald-400"
+                              : "text-rose-600 dark:text-rose-400"
                         }`}>
                         {available === undefined
                           ? "Check Availability"
@@ -296,7 +296,7 @@ export default async function AllBooksPage({
 
                       <Link
                         href={`/all-books/${bookId}`}
-                        className='rounded-lg border border-slate-800 bg-[#050714] px-3.5 py-2 text-xs font-semibold text-white transition-all hover:border-indigo-500 hover:bg-indigo-600'>
+                        className='rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#050714] px-3.5 py-2 text-xs font-semibold text-slate-900 dark:text-white transition-all hover:border-indigo-500 hover:bg-indigo-600 hover:text-white'>
                         View Details →
                       </Link>
                     </div>

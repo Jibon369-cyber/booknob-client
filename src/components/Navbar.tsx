@@ -18,6 +18,8 @@ import {
 } from "lucide-react";
 
 import { cn } from "cn";
+import { authClient } from "@/lib/auth-client";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 type NavItem = {
   label: string;
@@ -33,6 +35,19 @@ const navItems: NavItem[] = [
   { label: "My Borrows", href: "/my-borrows", icon: BookMarked },
 ];
 
+function getAvatarSrc(url?: string | null) {
+  if (!url) return undefined;
+  if (url.includes("bing.com/images/search")) {
+    try {
+      const mediaUrl = new URL(url).searchParams.get("mediaurl");
+      if (mediaUrl) return decodeURIComponent(mediaUrl);
+    } catch {
+      return url;
+    }
+  }
+  return url;
+}
+
 function isActivePath(pathname: string, href: string) {
   return href === "/"
     ? pathname === "/"
@@ -40,6 +55,10 @@ function isActivePath(pathname: string, href: string) {
 }
 
 export default function Navbar() {
+
+  const { data: session } = authClient.useSession();
+  const user = session?.user;
+
   const pathname = usePathname();
 
   const [isDark, setIsDark] = React.useState(true);
@@ -120,6 +139,12 @@ export default function Navbar() {
             className='flex size-10 items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.04] text-[#f3d36a] transition-all duration-300 hover:bg-white/[0.1] hover:rotate-12'>
             {isDark ? <Sun size={18} /> : <Moon size={18} />}
           </button>
+
+          {/* User Avatar */}
+          <Avatar key={getAvatarSrc(user?.image) ?? user?.email ?? "guest"}>
+            <AvatarImage referrerPolicy="no-referrer" src={getAvatarSrc(user?.image)} alt={user?.name ?? "User"} />
+            <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
+          </Avatar>
 
           {/* Login */}
           <Link

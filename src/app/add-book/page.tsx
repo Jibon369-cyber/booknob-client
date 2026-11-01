@@ -30,26 +30,11 @@ export default function AddBookForm(): React.JSX.Element {
   };
 
   return (
-    <div className='min-h-screen bg-[#050714] flex items-center justify-center p-6 text-slate-300'>
-      <div className='w-full max-w-2xl bg-[#0b1021] border border-slate-800/80 rounded-2xl p-8 shadow-2xl'>
+    <div className='min-h-screen bg-white dark:bg-[#050714] flex items-center justify-center p-6 text-black'>
+      <div className='w-full max-w-2xl bg-white dark:bg-[#0b1021] border border-slate-800/80 rounded-2xl p-8 shadow-2xl'>
         {/* Header Section */}
         <div className='mb-6'>
-          <div className='flex items-center gap-2 text-emerald-400 text-xs font-semibold tracking-wider uppercase mb-1'>
-            <svg
-              className='w-4 h-4'
-              fill='none'
-              viewBox='0 0 24 24'
-              stroke='currentColor'
-              strokeWidth='2'>
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                d='M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z'
-              />
-            </svg>
-            <span>JWT PROTECTED ROUTE</span>
-          </div>
-          <h1 className='text-2xl font-bold text-white tracking-tight'>
+          <h1 className='text-2xl font-bold text-black dark:text-white tracking-tight'>
             Add a New Book
           </h1>
           <p className='text-xs text-slate-400 mt-1'>
@@ -72,7 +57,7 @@ export default function AddBookForm(): React.JSX.Element {
                 onChange={(e) =>
                   setFormData({ ...formData, title: e.target.value })
                 }
-                className='w-full bg-[#050714] border border-slate-800 rounded-lg px-3.5 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors'
+                className='w-full dark:bg-[#050714] border border-slate-800 rounded-lg px-3.5 py-2.5 text-xs bg-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors'
                 required
               />
             </div>
@@ -88,7 +73,7 @@ export default function AddBookForm(): React.JSX.Element {
                 onChange={(e) =>
                   setFormData({ ...formData, author: e.target.value })
                 }
-                className='w-full bg-[#050714] border border-slate-800 rounded-lg px-3.5 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors'
+                className='w-full bg-white dark:bg-[#050714] border border-slate-800 rounded-lg px-3.5 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors'
                 required
               />
             </div>
@@ -106,7 +91,7 @@ export default function AddBookForm(): React.JSX.Element {
                   onChange={(e) =>
                     setFormData({ ...formData, category: e.target.value })
                   }
-                  className='w-full bg-[#050714] border border-slate-800 rounded-lg px-3.5 py-2.5 text-xs text-white appearance-none focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer'>
+                  className='w-full bg-white dark:bg-[#050714] border border-slate-800 rounded-lg px-3.5 py-2.5 text-xs text-black dark:text-white appearance-none focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer'>
                   <option value='Fiction'>Fiction</option>
                   <option value='Non-Fiction'>Non-Fiction</option>
                   <option value='Science'>Science</option>
@@ -149,7 +134,7 @@ export default function AddBookForm(): React.JSX.Element {
                     totalCopies: Number(e.target.value),
                   })
                 }
-                className='w-full bg-[#050714] border border-slate-800 rounded-lg px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 transition-colors'
+                className='w-full bg-white dark:bg-[#050714] border border-slate-800 rounded-lg px-3.5 py-2.5 text-xs text-black dark:text-white focus:outline-none focus:border-indigo-500 transition-colors'
                 required
               />
             </div>
@@ -167,7 +152,7 @@ export default function AddBookForm(): React.JSX.Element {
               onChange={(e) =>
                 setFormData({ ...formData, coverImage: e.target.value })
               }
-              className='w-full bg-[#050714] border border-slate-800 rounded-lg px-3.5 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors'
+              className='w-full bg-white dark:bg-[#050714] border border-slate-800 rounded-lg px-3.5 py-2.5 text-xs text-black dark:text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors'
               required
             />
           </div>
@@ -184,7 +169,7 @@ export default function AddBookForm(): React.JSX.Element {
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
               }
-              className='w-full bg-[#050714] border border-slate-800 rounded-lg p-3.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors resize-none'
+              className='w-full bg-white dark:bg-[#050714] border border-slate-800 rounded-lg p-3.5 text-xs text-black dark:text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors resize-none'
             />
           </div>
 
