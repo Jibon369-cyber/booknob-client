@@ -2,10 +2,18 @@
 
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const RegisterPage = () => {
-
     const router = useRouter();
+    const [passwordError, setPasswordError] = useState("");
+
+    const validatePassword = (pw: string) => {
+      if (pw.length < 6) return "Password must be at least 6 characters";
+      if (!/[A-Z]/.test(pw)) return "Password must contain an uppercase letter";
+      if (!/[a-z]/.test(pw)) return "Password must contain a lowercase letter";
+      return "";
+    };
 
     const handleSubmit = async (e: React.SubmitEvent<HTMLElement>) => {
         e.preventDefault();
@@ -17,9 +25,16 @@ const RegisterPage = () => {
             password: string;
             image?: string;
         };
-        
+
+        const err = validatePassword(user.password);
+        if (err) {
+            setPasswordError(err);
+            return;
+        }
+        setPasswordError("");
+
         const { data, error } = await authClient.signUp.email({
-          ...user, 
+          ...user,
         });
         console.log(data)
 
@@ -131,6 +146,9 @@ const RegisterPage = () => {
                 placeholder='••••••••'
                 className='w-full bg-slate-50 dark:bg-[#11182c] border border-slate-200 dark:border-[#1f2d4e] rounded-lg px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all'
               />
+              {passwordError && (
+                <p className='text-xs text-red-500 mt-1'>{passwordError}</p>
+              )}
             </div>
 
             {/* Submit Button */}

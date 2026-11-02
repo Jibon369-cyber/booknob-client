@@ -136,10 +136,8 @@ export default function BookDetailsPage() {
 
             {/* Borrow Action Dialog */}
             <Dialog open={open} onOpenChange={setOpen}>
-              <DialogTrigger asChild>
-                <Button className='w-full bg-[#FFB800] hover:bg-[#E6A600] text-black font-bold text-base py-6 rounded-2xl shadow-lg transition-all duration-200'>
-                  Borrow This Book Now
-                </Button>
+              <DialogTrigger render={<Button className='w-full bg-[#FFB800] hover:bg-[#E6A600] text-black font-bold text-base py-6 rounded-2xl shadow-lg transition-all duration-200' />}>
+                Borrow This Book Now
               </DialogTrigger>
               <DialogContent className='bg-[#111625] text-white border-slate-800 sm:rounded-2xl'>
                 <DialogHeader>
