@@ -1,190 +1,176 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { useSession } from "@/lib/auth-client";
+import toast from "react-hot-toast";
 import Image from "next/image";
-import Link from "next/link";
+import { Star } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 type Book = {
-  _id?: string;
-  id?: string;
+  _id: string;
   title: string;
   author: string;
   category: string;
   coverImage?: string;
-  description?: string;
-  addedBy?: string | { name?: string };
-  rating?: number;
-  availableCopies?: number;
-  totalCopies?: number;
 };
 
-const fallbackImage =
-  "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=600&q=80";
-
-function getCoverImage(url?: string): string {
-  if (!url) return fallbackImage;
-
+function getCoverImage(url?: string) {
+  if (!url)
+    return "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=600&q=80";
   if (url.includes("bing.com/images/search")) {
-    try {
-      const match = url.match(/mediaurl=([^&]+)/);
-      if (match) {
-        return decodeURIComponent(match[1]);
-      }
-    } catch {
-      // fall through to fallback
-    }
-    return fallbackImage;
+    const m = url.match(/mediaurl=([^&]+)/);
+    if (m) return decodeURIComponent(m[1]);
   }
-
-  if (/\.(jpg|jpeg|png|webp|gif|svg)(\?|$)/i.test(url)) {
-    return url;
-  }
-
-  return fallbackImage;
+  return url;
 }
 
-const BookDetailsPage = async ({ params }: { params: Promise<{ id: string }> }) => {
-  const { id } = await params;
+export default function BookDetailsPage() {
+  const params = useParams();
+  const id = params?.id as string;
+  const { data: session } = useSession();
+  const user = session?.user;
+  const [book, setBook] = useState<Book | null>(null);
+  const [open, setOpen] = useState(false);
 
-  let book: Book | null = null;
-  let error = "";
+  useEffect(() => {
+    if (!id) return;
+    fetch("http://localhost:9000/all-books")
+      .then((r) => r.json())
+      .then((d) => {
+        const list = Array.isArray(d) ? d : d.books || d.data || [];
+        const found = list.find((b: any) => (b._id ?? b.id) === id);
+        setBook(found || null);
+      })
+      .catch(console.error);
+  }, [id]);
 
-  try {
-    const res = await fetch(`http://localhost:9000/book/${id}`, {
-      cache: "no-store",
+  const handleBorrow = async () => {
+    if (!book || !user) return;
+    const borrowDate = new Date().toISOString();
+    const returnDate = new Date(
+      Date.now() + 14 * 24 * 60 * 60 * 1000,
+    ).toISOString();
+    const res = await fetch("http://localhost:9000/borrow", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        bookId: book._id,
+        bookTitle: book.title,
+        bookImage: getCoverImage(book.coverImage),
+        userEmail: user.email,
+        borrowDate,
+        returnDate,
+      }),
     });
-
-    if (!res.ok) {
-      throw new Error("Failed to fetch book details");
+    if (res.ok) {
+      toast.success("Book borrowed!");
+      setOpen(false);
+    } else {
+      toast.error("Borrow failed");
     }
+  };
 
-    book = await res.json();
-  } catch (err) {
-    console.error(err);
-    error = "Failed to load book details. Please try again later.";
-  }
-
-  if (error || !book) {
-    return (
-      <main className='min-h-screen bg-white dark:bg-[#050714] px-4 py-12 text-slate-900 dark:text-slate-300'>
-        <div className='mx-auto max-w-6xl'>
-          <Link
-            href='/all-books'
-            className='mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition'>
-            ← Back to Books
-          </Link>
-          <div className='rounded-2xl border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/20 p-8 text-center'>
-            <p className='font-semibold text-rose-600 dark:text-rose-400'>
-              {error || "Book not found."}
-            </p>
-          </div>
-        </div>
-      </main>
-    );
-  }
-
-  const addedBy =
-    typeof book.addedBy === "object" ? book.addedBy?.name : book.addedBy;
-
-  const available = book.availableCopies ?? book.totalCopies;
+  if (!book)
+    return <div className='p-10 text-center text-slate-400'>Loading...</div>;
 
   return (
-    <main className='min-h-screen bg-white dark:bg-[#050714] px-4 py-12 text-slate-900 dark:text-slate-300'>
-      <div className='mx-auto max-w-6xl'>
-        {/* Back Button */}
-        <Link
-          href='/all-books'
-          className='mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition'>
-          ← Back to Books
-        </Link>
-
-        {/* Details Card */}
-        <div className='grid overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#0b1021] shadow-xl md:grid-cols-2'>
-          {/* Book Image */}
-          <div className='flex min-h-[350px] items-center justify-center bg-slate-100 dark:bg-slate-900/60 p-8 md:p-12'>
-            <Image
-              src={getCoverImage(book.coverImage)}
-              alt={book.title}
-              height={400}
-              width={300}
-              unoptimized
-              className='max-h-[450px] w-full max-w-sm rounded-xl object-contain shadow-2xl'
-            />
+    <main className='min-h-screen bg-[#0B0F19] text-white flex items-center justify-center p-4 md:p-8'>
+      <div className='bg-[#111625] rounded-3xl p-6 md:p-10 max-w-4xl w-full border border-slate-800 shadow-2xl relative'>
+        <div className='flex flex-col md:flex-row gap-8 items-stretch'>
+          {/* Left Side: Yellow Card Banner with Book Cover */}
+          <div className='bg-[#FFCC00] rounded-2xl p-6 flex items-center justify-center flex-shrink-0 md:w-80 shadow-lg'>
+            <div className='relative w-48 h-72 rounded-lg overflow-hidden shadow-2xl transition-transform hover:scale-105 duration-300'>
+              <Image
+                src={getCoverImage(book.coverImage)}
+                alt={book.title}
+                fill
+                unoptimized
+                className='object-cover'
+              />
+            </div>
           </div>
 
-          {/* Book Information */}
-          <div className='flex flex-col justify-center p-6 md:p-10 lg:p-14'>
-            {/* Category */}
-            <span className='mb-5 w-fit rounded-full border border-slate-200 dark:border-slate-700/60 bg-slate-100 dark:bg-slate-900/90 px-4 py-2 text-sm font-semibold text-slate-900 dark:text-white'>
-              {book.category}
-            </span>
+          {/* Right Side: Book Details */}
+          <div className='flex flex-col justify-between flex-1 py-2'>
+            <div>
+              {/* Category Pill */}
+              <span className='inline-block px-4 py-1.5 rounded-full bg-[#1A2238] text-indigo-300 text-xs font-semibold tracking-wide mb-4'>
+                {book.category}
+              </span>
 
-            {/* Title */}
-            <h1 className='mb-4 text-3xl font-bold leading-tight text-slate-900 dark:text-white md:text-4xl'>
-              {book.title}
-            </h1>
+              {/* Title & Author */}
+              <h1 className='text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-1'>
+                {book.title}
+              </h1>
+              <p className='text-slate-400 text-base mb-4 font-medium'>
+                Author: <span className='text-slate-300'>{book.author}</span>
+              </p>
 
-            {/* Author */}
-            <p className='mb-6 text-lg text-slate-500 dark:text-slate-400'>
-              By{" "}
-              <span className='font-semibold text-slate-900 dark:text-white'>{book.author}</span>
-            </p>
+              {/* Rating & Availability */}
+              <div className='flex items-center gap-3 text-sm font-semibold mb-6'>
+                <div className='flex items-center gap-1.5 text-amber-400'>
+                  <Star className='w-4 h-4 fill-amber-400 stroke-amber-400' />
+                  <span>4.9</span>
+                </div>
+                <span className='text-slate-600'>•</span>
+                <span className='text-emerald-400'>8 Copies left</span>
+              </div>
 
-            <div className='mb-6 h-px w-full bg-slate-200 dark:bg-slate-800/80' />
-
-            {/* Description */}
-            <div className='mb-8'>
-              <h2 className='mb-3 text-xl font-bold text-slate-900 dark:text-white'>
-                About This Book
-              </h2>
-
-              <p className='leading-8 text-slate-600 dark:text-slate-400'>
-                {book.description || "No description available."}
+              {/* Description */}
+              <p className='text-slate-400 text-sm leading-relaxed mb-6'>
+                An easy and proven way to build good habits and break bad ones.
+                Transform your life with tiny changes that deliver remarkable
+                results.
               </p>
             </div>
 
-            {/* Availability */}
-            {available !== undefined && (
-              <div className='mb-8 flex items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-[#050714] p-4'>
-                <div
-                  className={`flex h-12 w-12 items-center justify-center rounded-full text-xl font-bold ${
-                    available > 0
-                      ? "bg-emerald-100 dark:bg-emerald-950/90 text-emerald-700 dark:text-emerald-300"
-                      : "bg-rose-100 dark:bg-rose-950/90 text-rose-700 dark:text-rose-300"
-                  }`}>
-                  {available}
+            {/* Borrow Action Dialog */}
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button className='w-full bg-[#FFB800] hover:bg-[#E6A600] text-black font-bold text-base py-6 rounded-2xl shadow-lg transition-all duration-200'>
+                  Borrow This Book Now
+                </Button>
+              </DialogTrigger>
+              <DialogContent className='bg-[#111625] text-white border-slate-800 sm:rounded-2xl'>
+                <DialogHeader>
+                  <DialogTitle className='text-xl font-bold text-white'>
+                    Borrow Book
+                  </DialogTitle>
+                </DialogHeader>
+                <div className='space-y-4 pt-2'>
+                  <Input
+                    value={user?.name || ""}
+                    readOnly
+                    placeholder='User Name'
+                    className='bg-[#1A2238] border-slate-700 text-white placeholder:text-slate-500 focus-visible:ring-amber-400'
+                  />
+                  <Input
+                    value={user?.email || ""}
+                    readOnly
+                    placeholder='User Email'
+                    className='bg-[#1A2238] border-slate-700 text-white placeholder:text-slate-500 focus-visible:ring-amber-400'
+                  />
+                  <Button
+                    onClick={handleBorrow}
+                    className='w-full bg-[#FFB800] hover:bg-[#E6A600] text-black font-bold py-5 rounded-xl transition-all duration-200'>
+                    Confirm Borrow
+                  </Button>
                 </div>
-
-                <div>
-                  <p className='text-xs text-slate-500 dark:text-slate-500'>Copies Available</p>
-                  <p className='font-bold text-slate-900 dark:text-white'>
-                    {available > 0 ? `${available} Available` : "Not Available"}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Added By */}
-            <div className='mb-8 flex items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-[#050714] p-4'>
-              <div className='flex h-12 w-12 items-center justify-center rounded-full bg-indigo-600 text-xl font-bold text-white'>
-                {(addedBy || "U").charAt(0).toUpperCase()}
-              </div>
-
-              <div>
-                <p className='text-xs text-slate-500 dark:text-slate-500'>Added to Library By</p>
-
-                <p className='font-bold text-slate-900 dark:text-white'>{addedBy || "Unknown User"}</p>
-              </div>
-            </div>
-
-            {/* Borrow Button */}
-            <button
-              type='button'
-              className='w-full rounded-xl bg-indigo-600 px-6 py-3.5 text-sm font-semibold text-white shadow-md transition hover:bg-indigo-500 hover:shadow-lg'>
-              Borrow This Book
-            </button>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </div>
     </main>
   );
-};
-
-export default BookDetailsPage;
+}
