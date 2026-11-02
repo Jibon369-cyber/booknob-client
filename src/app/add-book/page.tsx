@@ -57,7 +57,7 @@ export default function AddBookForm(): React.JSX.Element {
                 onChange={(e) =>
                   setFormData({ ...formData, title: e.target.value })
                 }
-                className='w-full dark:bg-[#050714] border border-slate-800 rounded-lg px-3.5 py-2.5 text-xs bg-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors'
+                className='w-full dark:bg-[#050714] dark:text-white border border-slate-800 rounded-lg px-3.5 py-2.5 text-xs bg-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors'
                 required
               />
             </div>

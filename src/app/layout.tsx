@@ -21,10 +21,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang='en' className={`${oswald.variable} ${oswald.className} dark h-full antialiased`}>
+    <html
+      lang='en'
+      className={`${oswald.variable} ${oswald.className} dark h-full antialiased`}>
       <body className='min-h-full flex flex-col'>
         <Navbar />
-        {children}
+        <Toaster>{children}</Toaster>
         <Footer />
         <Toaster />
       </body>
