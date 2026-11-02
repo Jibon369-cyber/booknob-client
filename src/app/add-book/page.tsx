@@ -3,9 +3,13 @@
 
 import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 export default function AddBookForm(): React.JSX.Element {
+  useEffect(() => {
+    document.title = "BookNook | Add Book";
+  }, []);
+
   const [formData, setFormData] = useState({
     title: "",
     author: "",

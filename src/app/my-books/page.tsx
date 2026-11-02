@@ -48,6 +48,10 @@ const MyBooks = () => {
   const { data: session } = useSession();
   const user = session?.user;
 
+  useEffect(() => {
+    document.title = "BookNook | My Books";
+  }, []);
+
   const [books, setBooks] = useState<Book[]>([]);
   const [editing, setEditing] = useState<Book | null>(null);
   const [form, setForm] = useState<Partial<Book>>({});

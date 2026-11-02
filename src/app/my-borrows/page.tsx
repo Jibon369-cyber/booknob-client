@@ -23,6 +23,9 @@ function getCoverImage(url?: string) {
 }
 
 export default function MyBorrowsPage() {
+  useEffect(() => {
+    document.title = "BookNook | My Borrows";
+  }, []);
   const { data: session } = useSession();
   const user = session?.user;
   const [borrows, setBorrows] = useState<Borrow[]>([]);

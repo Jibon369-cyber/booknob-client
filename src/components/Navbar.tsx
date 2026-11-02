@@ -163,6 +163,7 @@ export default function Navbar() {
           {user ? (
             <Popover>
               <PopoverTrigger
+                nativeButton={false}
                 render={
                   <Avatar
                     key={getAvatarSrc(user?.image) ?? user?.email ?? "guest"}>

@@ -2,11 +2,15 @@
 
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const LoginPage = () => {
     const router = useRouter();
     const [passwordError, setPasswordError] = useState("");
+
+    useEffect(() => {
+      document.title = "BookNook | Login";
+    }, []);
 
     const validatePassword = (pw: string) => {
       if (pw.length < 6) return "Password must be at least 6 characters";

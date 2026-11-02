@@ -49,6 +49,8 @@ function getCoverImage(url?: string): string {
   return fallbackImage;
 }
 
+export const metadata = { title: "BookNook | All Books" };
+
 export default async function AllBooksPage({
   searchParams,
 }: {

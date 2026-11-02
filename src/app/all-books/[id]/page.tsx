@@ -22,6 +22,8 @@ type Book = {
   author: string;
   category: string;
   coverImage?: string;
+  availableCopies?: number;
+  totalCopies?: number;
 };
 
 function getCoverImage(url?: string) {
@@ -43,6 +45,10 @@ export default function BookDetailsPage() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
+    document.title = "BookNook | Book Details";
+  }, []);
+
+  useEffect(() => {
     if (!id) return;
     fetch("http://localhost:9000/all-books")
       .then((r) => r.json())
@@ -56,6 +62,20 @@ export default function BookDetailsPage() {
 
   const handleBorrow = async () => {
     if (!book || !user) return;
+    // no double borrow
+    const resBorrows = await fetch(
+      `http://localhost:9000/my-borrows?email=${encodeURIComponent(user.email)}`
+    );
+    const data = await resBorrows.json();
+    const list = Array.isArray(data) ? data : data.borrows || data.data || [];
+    if (list.some((b: any) => b.bookId === book._id)) {
+      toast.error("You already borrowed this book");
+      return;
+    }
+    if ((book.availableCopies ?? book.totalCopies ?? 1) <= 0) {
+      toast.error("Not available");
+      return;
+    }
     const borrowDate = new Date().toISOString();
     const returnDate = new Date(
       Date.now() + 14 * 24 * 60 * 60 * 1000,
@@ -74,6 +94,17 @@ export default function BookDetailsPage() {
     });
     if (res.ok) {
       toast.success("Book borrowed!");
+      setBook((prev) =>
+        prev
+          ? {
+              ...prev,
+              availableCopies: Math.max(
+                0,
+                (prev.availableCopies ?? prev.totalCopies ?? 1) - 1
+              ),
+            }
+          : prev
+      );
       setOpen(false);
     } else {
       toast.error("Borrow failed");
@@ -123,7 +154,9 @@ export default function BookDetailsPage() {
                   <span>4.9</span>
                 </div>
                 <span className='text-slate-600'>•</span>
-                <span className='text-emerald-400'>8 Copies left</span>
+                <span className='text-emerald-400'>
+                  {book.availableCopies ?? book.totalCopies ?? 0} Copies left
+                </span>
               </div>
 
               {/* Description */}
@@ -136,8 +169,17 @@ export default function BookDetailsPage() {
 
             {/* Borrow Action Dialog */}
             <Dialog open={open} onOpenChange={setOpen}>
-              <DialogTrigger render={<Button className='w-full bg-[#FFB800] hover:bg-[#E6A600] text-black font-bold text-base py-6 rounded-2xl shadow-lg transition-all duration-200' />}>
-                Borrow This Book Now
+              <DialogTrigger
+                render={
+                  <Button
+                    disabled={(book.availableCopies ?? book.totalCopies ?? 1) <= 0}
+                    className='w-full bg-[#FFB800] hover:bg-[#E6A600] text-black font-bold text-base py-6 rounded-2xl shadow-lg transition-all duration-200 disabled:opacity-50'
+                  />
+                }
+              >
+                {(book.availableCopies ?? book.totalCopies ?? 1) <= 0
+                  ? "Not Available"
+                  : "Borrow This Book Now"}
               </DialogTrigger>
               <DialogContent className='bg-[#111625] text-white border-slate-800 sm:rounded-2xl'>
                 <DialogHeader>

@@ -23,6 +23,7 @@ function getCoverImage(url?: string) {
 
 export default function NewArrivals() {
   const [books, setBooks] = useState<Book[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch("http://localhost:9000/all-books")
@@ -34,13 +35,22 @@ export default function NewArrivals() {
           String(b._id).localeCompare(String(a._id))
         );
         setBooks(sorted.slice(0, 6));
+        setLoading(false);
       })
-      .catch(console.error);
+      .catch((e) => {
+        console.error(e);
+        setLoading(false);
+      });
   }, []);
 
   return (
     <section className="py-10 px-4">
       <h2 className="text-2xl font-bold mb-6">New Arrivals</h2>
+      {loading ? (
+        <div className="flex justify-center py-10">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
+        </div>
+      ) : (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {books.map((book) => (
           <div
@@ -67,6 +77,7 @@ export default function NewArrivals() {
           </div>
         ))}
       </div>
+      )}
       <div className="mt-8 text-center">
         <Link
           href="/all-books"
