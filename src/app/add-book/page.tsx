@@ -1,6 +1,8 @@
 'use client'
 "import React, useState";
 
+import { useSession } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 export default function AddBookForm(): React.JSX.Element {
@@ -13,21 +15,32 @@ export default function AddBookForm(): React.JSX.Element {
     description: "",
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const router = useRouter();
+   const { data: session } = useSession();
+   const user = session?.user;
 
-    const res = await fetch("http://localhost:9000/add-book" , {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData),
-    });
+   const handleSubmit = async (e: React.FormEvent) => {
+     e.preventDefault();
 
-    const data = await res.json();
-   
-    
-  };
+     const payload = {
+       ...formData,
+       addedBy: user?.email, 
+     };
+
+     const res = await fetch("http://localhost:9000/add-book", {
+       method: "POST",
+       headers: {
+         "Content-Type": "application/json",
+       },
+       body: JSON.stringify(payload),
+     });
+
+     const data = await res.json();
+
+     if (data) {
+       router.push("/my-books"); // redirect to my-books to verify
+     }
+   };
 
   return (
     <div className='min-h-screen bg-white dark:bg-[#050714] flex items-center justify-center p-6 text-black'>

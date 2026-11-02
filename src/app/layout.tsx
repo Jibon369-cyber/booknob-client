@@ -4,7 +4,7 @@ import "./globals.css";
 
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Toaster } from "@/components/ui/toast";
+import { Toaster } from "react-hot-toast";
 
 
 const oswald = Oswald({
@@ -26,8 +26,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${oswald.variable} ${oswald.className} dark h-full antialiased`}>
       <body className='min-h-full flex flex-col'>
         <Navbar />
-        <Toaster>{children}</Toaster>
+        {children}
         <Footer />
+        <Toaster />
         <Toaster />
       </body>
     </html>
