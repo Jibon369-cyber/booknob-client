@@ -26,13 +26,13 @@ export default function NewArrivals() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:9000/all-books")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/all-books`)
       .then((r) => r.json())
       .then((d) => {
         const list = Array.isArray(d) ? d : d.books || d.data || [];
         // newest first (by _id) then limit 6
         const sorted = [...list].sort((a, b) =>
-          String(b._id).localeCompare(String(a._id))
+          String(b._id).localeCompare(String(a._id)),
         );
         setBooks(sorted.slice(0, 6));
         setLoading(false);

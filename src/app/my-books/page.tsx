@@ -60,7 +60,7 @@ const MyBooks = () => {
     if (!user?.email) return;
 
     const res = await fetch(
-      `http://localhost:9000/my-books?email=${encodeURIComponent(user.email)}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/my-books?email=${encodeURIComponent(user.email)}`,
     );
 
     const data = await res.json();
@@ -86,7 +86,7 @@ const MyBooks = () => {
     const { _id, ...payload } = form as any;
 
     const res = await fetch(
-      `http://localhost:9000/update-book/${editing._id}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/update-book/${editing._id}`,
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -123,7 +123,7 @@ const MyBooks = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         const res = await fetch(
-          `http://localhost:9000/delete-book/${book._id}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/delete-book/${book._id}`,
           {
             method: "DELETE",
           },

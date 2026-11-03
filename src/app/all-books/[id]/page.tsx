@@ -50,7 +50,7 @@ export default function BookDetailsPage() {
 
   useEffect(() => {
     if (!id) return;
-    fetch("http://localhost:9000/all-books")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/all-books`)
       .then((r) => r.json())
       .then((d) => {
         const list = Array.isArray(d) ? d : d.books || d.data || [];
@@ -64,7 +64,7 @@ export default function BookDetailsPage() {
     if (!book || !user) return;
     // no double borrow
     const resBorrows = await fetch(
-      `http://localhost:9000/my-borrows?email=${encodeURIComponent(user.email)}`
+      `${process.env.NEXT_PUBLIC_API_URL}/my-borrows?email=${encodeURIComponent(user.email)}`,
     );
     const data = await resBorrows.json();
     const list = Array.isArray(data) ? data : data.borrows || data.data || [];
@@ -80,7 +80,7 @@ export default function BookDetailsPage() {
     const returnDate = new Date(
       Date.now() + 14 * 24 * 60 * 60 * 1000,
     ).toISOString();
-    const res = await fetch("http://localhost:9000/borrow", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/borrow`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

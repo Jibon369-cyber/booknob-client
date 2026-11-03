@@ -33,7 +33,7 @@ export default function MyBorrowsPage() {
   const load = async () => {
     if (!user?.email) return;
     const res = await fetch(
-      `http://localhost:9000/my-borrows?email=${encodeURIComponent(user.email)}`
+      `${process.env.NEXT_PUBLIC_API_URL}/my-borrows?email=${encodeURIComponent(user.email)}`,
     );
     const data = await res.json();
     setBorrows(Array.isArray(data) ? data : data.borrows || data.data || []);
@@ -44,9 +44,12 @@ export default function MyBorrowsPage() {
   }, [user]);
 
   const handleReturn = async (b: Borrow) => {
-    const res = await fetch(`http://localhost:9000/return-book/${b._id}`, {
-      method: "DELETE",
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/return-book/${b._id}`,
+      {
+        method: "DELETE",
+      },
+    );
     if (res.ok) {
       setBorrows((prev) => prev.filter((x) => x._id !== b._id));
       toast.success("Book returned");
