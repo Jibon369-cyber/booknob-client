@@ -1,7 +1,8 @@
 "use client";
 "import React, useState";
 
-import { authClient, useSession } from "@/lib/auth-client";
+import { useSession } from "@/lib/auth-client";
+import { fetchWithAuth } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 
@@ -31,19 +32,10 @@ export default function AddBookForm(): React.JSX.Element {
       addedBy: user?.email,
     };
 
-    const { data, error } = await authClient.token();
-
-    if (error || !data?.token) {
-      throw new Error("Authentication token not found");
-    }
-
-    const jwtToken = data.token;
-
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/add-book`, {
+    const res = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/add-book`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${jwtToken}`,
       },
       body: JSON.stringify(payload),
     });

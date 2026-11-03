@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { authClient, useSession } from "@/lib/auth-client";
+import { useSession } from "@/lib/auth-client";
+import { fetchWithAuth } from "@/lib/api";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 import {
@@ -58,22 +59,12 @@ const MyBooks = () => {
   const loadBooks = async () => {
     if (!user?.email) return;
 
-    const { data, error } = await authClient.token();
-
-    if (error || !data?.token) {
-      throw new Error("Authentication token not found");
-    }
-
-    const jwtToken = data.token;
-
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/my-books?email=${encodeURIComponent(user.email)}`,
-      {
-        headers: {
-          authorization: `Bearer ${jwtToken}`,
-        },
-      },
+    const res = await fetchWithAuth(
+      `${process.env.NEXT_PUBLIC_API_URL}/my-books`,
     );
+    if (!res.ok) {
+      throw new Error(`Failed to load books (${res.status})`);
+    }
 
     const result = await res.json();
     const list = Array.isArray(result)
@@ -84,8 +75,12 @@ const MyBooks = () => {
   };
 
   useEffect(() => {
-    if (user?.email) loadBooks();
-  }, [user]);
+    if (!user?.email) return;
+    loadBooks().catch((error) => {
+      console.error("Failed to load your books", error);
+      toast.error("Failed to load your books");
+    });
+  }, [user?.email]);
 
   const openEdit = (book: Book) => {
     setEditing(book);
@@ -99,21 +94,12 @@ const MyBooks = () => {
 
     const { _id, ...payload } = form as any;
 
-    const { data, error } = await authClient.token();
-
-    if (error || !data?.token) {
-      throw new Error("Authentication token not found");
-    }
-
-    const jwtToken = data.token;
-
-    const res = await fetch(
+    const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/update-book/${editing._id}`,
       {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          authorization: `Bearer ${jwtToken}`,
         },
         body: JSON.stringify(payload),
       },
@@ -146,21 +132,11 @@ const MyBooks = () => {
         cancelButton: "rounded-lg px-5 py-2.5",
       },
     }).then(async (result) => {
-      const { data, error } = await authClient.token();
-
-      if (error || !data?.token) {
-        throw new Error("Authentication token not found");
-      }
-
-      const jwtToken = data.token;
       if (result.isConfirmed) {
-        const res = await fetch(
+        const res = await fetchWithAuth(
           `${process.env.NEXT_PUBLIC_API_URL}/delete-book/${book._id}`,
           {
             method: "DELETE",
-            headers: {
-              authorization: `Bearer ${jwtToken}`,
-            },
           },
         );
 

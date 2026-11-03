@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { authClient, useSession } from "@/lib/auth-client";
+import { useSession } from "@/lib/auth-client";
+import { fetchWithAuth } from "@/lib/api";
 import toast from "react-hot-toast";
 import Image from "next/image";
 import { Star } from "lucide-react";
@@ -45,6 +46,7 @@ export default function BookDetailsPage() {
   const { data: session } = useSession();
   const user = session?.user;
   const [book, setBook] = useState<Book | null>(null);
+  const [loadError, setLoadError] = useState("");
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -52,36 +54,18 @@ export default function BookDetailsPage() {
 
     const fetchBook = async () => {
       try {
-        const { data, error } = await authClient.token();
-
-        if (error || !data?.token) {
-          throw new Error("Authentication token not found");
-        }
-
-        const jwtToken = data.token;
-
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/all-books`,
-          {
-            headers: {
-              Authorization: `Bearer ${jwtToken}`,
-            },
-          },
+        const res = await fetchWithAuth(
+          `${process.env.NEXT_PUBLIC_API_URL}/book/${encodeURIComponent(id)}`,
         );
 
         if (!res.ok) {
-          throw new Error("Failed to fetch books");
+          throw new Error(`Failed to load book (${res.status})`);
         }
 
-        const d = await res.json();
-
-        const list = Array.isArray(d) ? d : d.books || d.data || [];
-
-        const found = list.find((b: any) => (b._id ?? b.id) === id);
-
-        setBook(found || null);
+        setBook(await res.json());
       } catch (error) {
         console.error(error);
+        setLoadError("Unable to load this book. Please try again.");
       }
     };
 
@@ -95,9 +79,13 @@ export default function BookDetailsPage() {
   const handleBorrow = async () => {
     if (!book || !user) return;
     // no double borrow
-    const resBorrows = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/my-borrows?email=${encodeURIComponent(user.email)}`,
+    const resBorrows = await fetchWithAuth(
+      `${process.env.NEXT_PUBLIC_API_URL}/my-borrows`,
     );
+    if (!resBorrows.ok) {
+      toast.error("Could not check your borrows");
+      return;
+    }
     const data = await resBorrows.json();
     const list = Array.isArray(data) ? data : data.borrows || data.data || [];
     if (list.some((b: any) => b.bookId === book._id)) {
@@ -112,11 +100,10 @@ export default function BookDetailsPage() {
     const returnDate = new Date(
       Date.now() + 14 * 24 * 60 * 60 * 1000,
     ).toISOString();
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/borrow`, {
+    const res = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/borrow`, {
       method: "POST",
       headers: { 
         "Content-Type": "application/json",
-        
       },
       body: JSON.stringify({
         bookId: book._id,
@@ -145,6 +132,9 @@ export default function BookDetailsPage() {
       toast.error("Borrow failed");
     }
   };
+
+  if (loadError)
+    return <div className='p-10 text-center text-red-500'>{loadError}</div>;
 
   if (!book)
     return <div className='p-10 text-center text-slate-400'>Loading...</div>;

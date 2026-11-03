@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { authClient, useSession } from "@/lib/auth-client";
+import { useSession } from "@/lib/auth-client";
+import { fetchWithAuth } from "@/lib/api";
 import toast from "react-hot-toast";
 import Image from "next/image";
 
@@ -33,45 +34,30 @@ export default function MyBorrowsPage() {
   const [borrows, setBorrows] = useState<Borrow[]>([]);
 
   const load = async () => {
-    const { data, error } = await authClient.token();
-
-    if (error || !data?.token) {
-      throw new Error("Authentication token not found");
-    }
-
-    const jwtToken = data.token;
-
     if (!user?.email) return;
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/my-borrows?email=${encodeURIComponent(user.email)}`,
-      {
-        headers: {
-          Authorization: `Bearer ${jwtToken}`,
-        },
-      },
+    const res = await fetchWithAuth(
+      `${process.env.NEXT_PUBLIC_API_URL}/my-borrows`,
     );
+    if (!res.ok) {
+      throw new Error(`Failed to load borrows (${res.status})`);
+    }
     const result = await res.json();
     setBorrows(Array.isArray(result) ? result : result.borrows || result.data || []);
   };
 
   useEffect(() => {
-    if (user?.email) load();
-  }, [user]);
+    if (!user?.email) return;
+    load().catch((error) => {
+      console.error("Failed to load your borrows", error);
+      toast.error("Failed to load your borrows");
+    });
+  }, [user?.email]);
 
   const handleReturn = async (b: Borrow) => {
-    const { data, error } = await authClient.token();
-    if (error || !data?.token) {
-      toast.error("Authentication token not found");
-      return;
-    }
-    const jwtToken = data.token;
-    const res = await fetch(
+    const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/return-book/${b._id}`,
       {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${jwtToken}`,
-        },
       },
     );
     if (res.ok) {
