@@ -179,6 +179,9 @@ export default function Navbar() {
                 <PopoverHeader>
                   <PopoverTitle>{user?.name}</PopoverTitle>
                   <PopoverDescription>{user?.email}</PopoverDescription>
+                  <Link href='/profile' className='text-indigo-600 hover:underline'>
+                    My Profile
+                  </Link>
                 </PopoverHeader>
                 <Button onClick={handleLogout} className='bg-[#5b4cf5] hover:bg-[#6a5df7] text-white'>
                   Log Out
