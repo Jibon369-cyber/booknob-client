@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { useSession } from "@/lib/auth-client";
+import { authClient, useSession } from "@/lib/auth-client";
 import toast from "react-hot-toast";
 import Image from "next/image";
 import { Star } from "lucide-react";
@@ -16,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+
 type Book = {
   _id: string;
   title: string;
@@ -24,16 +25,18 @@ type Book = {
   coverImage?: string;
   availableCopies?: number;
   totalCopies?: number;
+  description?: string;
 };
 
 function getCoverImage(url?: string) {
-  if (!url)
-    return "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=600&q=80";
+  const fallback = "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=600&q=80";
+  if (!url) return fallback;
   if (url.includes("bing.com/images/search")) {
     const m = url.match(/mediaurl=([^&]+)/);
     if (m) return decodeURIComponent(m[1]);
   }
-  return url;
+  if (/^https?:\/\//i.test(url)) return url;
+  return fallback;
 }
 
 export default function BookDetailsPage() {
@@ -45,20 +48,49 @@ export default function BookDetailsPage() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    document.title = "BookNook | Book Details";
-  }, []);
-
-  useEffect(() => {
     if (!id) return;
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/all-books`)
-      .then((r) => r.json())
-      .then((d) => {
+
+    const fetchBook = async () => {
+      try {
+        const { data, error } = await authClient.token();
+
+        if (error || !data?.token) {
+          throw new Error("Authentication token not found");
+        }
+
+        const jwtToken = data.token;
+
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/all-books`,
+          {
+            headers: {
+              Authorization: `Bearer ${jwtToken}`,
+            },
+          },
+        );
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch books");
+        }
+
+        const d = await res.json();
+
         const list = Array.isArray(d) ? d : d.books || d.data || [];
+
         const found = list.find((b: any) => (b._id ?? b.id) === id);
+
         setBook(found || null);
-      })
-      .catch(console.error);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchBook();
   }, [id]);
+
+  
+
+  // removed invalid effect
 
   const handleBorrow = async () => {
     if (!book || !user) return;
@@ -82,7 +114,10 @@ export default function BookDetailsPage() {
     ).toISOString();
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/borrow`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        
+      },
       body: JSON.stringify({
         bookId: book._id,
         bookTitle: book.title,
@@ -161,9 +196,7 @@ export default function BookDetailsPage() {
 
               {/* Description */}
               <p className='text-slate-400 text-sm leading-relaxed mb-6'>
-                An easy and proven way to build good habits and break bad ones.
-                Transform your life with tiny changes that deliver remarkable
-                results.
+                {book.description || "No description available."}
               </p>
             </div>
 

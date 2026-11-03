@@ -1,7 +1,7 @@
-'use client'
+"use client";
 "import React, useState";
 
-import { useSession } from "@/lib/auth-client";
+import { authClient, useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 
@@ -20,31 +20,40 @@ export default function AddBookForm(): React.JSX.Element {
   });
 
   const router = useRouter();
-   const { data: session } = useSession();
-   const user = session?.user;
+  const { data: session } = useSession();
+  const user = session?.user;
 
-   const handleSubmit = async (e: React.FormEvent) => {
-     e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-     const payload = {
-       ...formData,
-       addedBy: user?.email, 
-     };
+    const payload = {
+      ...formData,
+      addedBy: user?.email,
+    };
 
-     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/add-book`, {
-       method: "POST",
-       headers: {
-         "Content-Type": "application/json",
-       },
-       body: JSON.stringify(payload),
-     });
+    const { data, error } = await authClient.token();
 
-     const data = await res.json();
+    if (error || !data?.token) {
+      throw new Error("Authentication token not found");
+    }
 
-     if (data) {
-       router.push("/my-books"); // redirect to my-books to verify
-     }
-   };
+    const jwtToken = data.token;
+
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/add-book`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${jwtToken}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await res.json();
+
+    if (result) {
+      router.push("/my-books"); // redirect to my-books to verify
+    }
+  };
 
   return (
     <div className='min-h-screen bg-white dark:bg-[#050714] flex items-center justify-center p-6 text-black'>
