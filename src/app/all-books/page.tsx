@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { getCoverImage } from "@/lib/cover-image";
 
 type Book = {
   _id?: string;
@@ -11,6 +12,7 @@ type Book = {
   rating?: number;
   availableCopies?: number;
   totalCopies?: number;
+  addedBy?: string;
 };
 
 const categories = [
@@ -21,33 +23,6 @@ const categories = [
   "Technology",
   "History",
 ];
-
-const fallbackImage =
-  "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=600&q=80";
-
-function getCoverImage(url?: string): string {
-  if (!url) return fallbackImage;
-
-  // Bing image search URLs contain the real image in the `mediaurl` param
-  if (url.includes("bing.com/images/search")) {
-    try {
-      const match = url.match(/mediaurl=([^&]+)/);
-      if (match) {
-        return decodeURIComponent(match[1]);
-      }
-    } catch {
-      // fall through to fallback
-    }
-    return fallbackImage;
-  }
-
-  // Accept direct image links
-  if (/\.(jpg|jpeg|png|webp|gif|svg)(\?|$)/i.test(url)) {
-    return url;
-  }
-
-  return fallbackImage;
-}
 
 export const metadata = { title: "BookNook | All Books" };
 
@@ -226,6 +201,7 @@ export default async function AllBooksPage({
             {filteredBooks.map((book, index) => {
               const bookId = book._id ?? book.id ?? String(index);
               const available = book.availableCopies ?? book.totalCopies;
+              // const addBy = book.addedBy;
 
               return (
                 <article
@@ -279,6 +255,7 @@ export default async function AllBooksPage({
                       </h2>
 
                       <p className='text-xs text-slate-500 dark:text-slate-400'>by {book.author}</p>
+                      <p className='text-xs text-slate-500 dark:text-slate-400'>Added by {book.addedBy}</p>
                     </div>
 
                     {/* Card Footer */}

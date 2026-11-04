@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { getCoverImage } from "@/lib/cover-image";
 
 
 type Book = {
@@ -27,18 +28,8 @@ type Book = {
   availableCopies?: number;
   totalCopies?: number;
   description?: string;
+  addedBy?: string;
 };
-
-function getCoverImage(url?: string) {
-  const fallback = "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=600&q=80";
-  if (!url) return fallback;
-  if (url.includes("bing.com/images/search")) {
-    const m = url.match(/mediaurl=([^&]+)/);
-    if (m) return decodeURIComponent(m[1]);
-  }
-  if (/^https?:\/\//i.test(url)) return url;
-  return fallback;
-}
 
 export default function BookDetailsPage() {
   const params = useParams();
@@ -164,12 +155,15 @@ export default function BookDetailsPage() {
                 {book.category}
               </span>
 
-              {/* Title & Author */}
+              {/* Title & Author & Added by */}
               <h1 className='text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-1'>
                 {book.title}
               </h1>
               <p className='text-slate-400 text-base mb-4 font-medium'>
                 Author: <span className='text-slate-300'>{book.author}</span>
+              </p>
+              <p className='text-slate-400 text-base mb-4 font-medium'>
+                Added by: <span className='text-slate-300'>{book.addedBy}</span>
               </p>
 
               {/* Rating & Availability */}

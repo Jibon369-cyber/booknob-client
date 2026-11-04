@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { FALLBACK_COVER_IMAGE, getCoverImage } from "@/lib/cover-image";
 
 type Book = {
   _id: string;
@@ -28,21 +29,6 @@ type Book = {
   image?: string;
   cover?: string;
 };
-
-const fallbackImage =
-  "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=600&q=80";
-
-function getCoverImage(url?: string): string {
-  if (!url) return fallbackImage;
-  if (url.includes("bing.com/images/search")) {
-    try {
-      const match = url.match(/mediaurl=([^&]+)/);
-      if (match) return decodeURIComponent(match[1]);
-    } catch {}
-  }
-  if (/^https?:\/\//i.test(url)) return url;
-  return fallbackImage;
-}
 
 const MyBooks = () => {
   const { data: session } = useSession();
@@ -294,7 +280,7 @@ const MyBooks = () => {
                       unoptimized
                       onError={(e) => {
                         (e.target as HTMLImageElement).src =
-                          "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=600&q=80";
+                          FALLBACK_COVER_IMAGE;
                       }}
                     />
                   </div>

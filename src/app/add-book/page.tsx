@@ -5,6 +5,7 @@ import { useSession } from "@/lib/auth-client";
 import { fetchWithAuth } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 
 export default function AddBookForm(): React.JSX.Element {
   useEffect(() => {
@@ -24,26 +25,53 @@ export default function AddBookForm(): React.JSX.Element {
   const { data: session } = useSession();
   const user = session?.user;
 
+  // const payload = {
+  //   ...formData,
+  //   // addedBy: user?.email,
+  // };
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+
+
+  //   const res = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/add-book`, {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify(payload),
+  //   });
+
+  //   const result = await res.json();
+
+  //   if (result) {
+  //     router.push("/my-books"); // redirect to my-books to verify
+  //   }
+  // };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const payload = {
-      ...formData,
-      addedBy: user?.email,
-    };
+    try {
+      const res = await fetchWithAuth(
+        `${process.env.NEXT_PUBLIC_API_URL}/add-book`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        },
+      );
 
-    const res = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/add-book`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
+      if (!res.ok) {
+        throw new Error("Failed to add book");
+      }
 
-    const result = await res.json();
-
-    if (result) {
-      router.push("/my-books"); // redirect to my-books to verify
+      toast.success("Book added successfully!");
+      router.push("/my-books");
+    } catch (error) {
+      console.error("Add book error:", error);
+      toast.error("Something went wrong!");
     }
   };
 
